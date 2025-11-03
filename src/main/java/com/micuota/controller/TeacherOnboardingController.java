@@ -22,11 +22,16 @@ import java.util.Optional;
 @RequestMapping("/onboarding")
 public class TeacherOnboardingController {
 
-    @Autowired
-    private TeacherOnboardingRepository teacherOnboardingRepository;
+    private final TeacherOnboardingRepository teacherOnboardingRepository;
+
+    private final UserRepository userRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    public TeacherOnboardingController(TeacherOnboardingRepository teacherOnboardingRepository,
+                                       UserRepository userRepository) {
+        this.teacherOnboardingRepository = teacherOnboardingRepository;
+        this.userRepository = userRepository;
+    }
 
     @GetMapping("/teacher")
     public Map<String, Object> getTeacherOnboarding(Authentication authentication) {
