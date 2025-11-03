@@ -1,14 +1,26 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/micuota
-    username: postgres
-    password: root
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/micuota}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:root}
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+    show-sql: ${SPRING_JPA_SHOW_SQL:true}
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
+
 jwt:
-  secret: ChangeThisSecretKeyForJWTSigning
-  expiration: 86400000
+  secret: ${JWT_SECRET:ChangeThisSecretKeyForJWTSigning}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+# MercadoPago Configuration (for future implementation)
+mercadopago:
+  access-token: ${MERCADOPAGO_ACCESS_TOKEN:}
+  client-id: ${MERCADOPAGO_CLIENT_ID:}
+  client-secret: ${MERCADOPAGO_CLIENT_SECRET:}
+  webhook-secret: ${MERCADOPAGO_WEBHOOK_SECRET:}
+  sandbox: ${MERCADOPAGO_SANDBOX:true}

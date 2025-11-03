@@ -1,0 +1,42 @@
+# ================================
+# DEVELOPMENT PROFILE CONFIGURATION
+# ================================
+
+spring:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# Development logging
+logging:
+  level:
+    com.micuota: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.security: DEBUG
+    
+# MercadoPago Development Settings
+mercadopago:
+  sandbox: true
+  
+# CORS for development (allow frontend connections)
+cors:
+  allowed-origins: 
+    - http://localhost:3000
+    - http://localhost:3001
+    - http://localhost:8080
+    - http://127.0.0.1:3000
+
+# Development specific configurations
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env

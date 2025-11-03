@@ -1,0 +1,53 @@
+# ================================
+# PRODUCTION PROFILE CONFIGURATION
+# ================================
+
+spring:
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+        
+# Production logging (more restrictive)
+logging:
+  level:
+    com.micuota: INFO
+    org.hibernate.SQL: WARN
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/micuota-app.log
+
+# MercadoPago Production Settings  
+mercadopago:
+  sandbox: false
+
+# Production security headers
+server:
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
+
+# Production actuator endpoints (restricted)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: never
+      
+# Production CORS (should be specific domains)
+cors:
+  allowed-origins: 
+    - https://your-frontend-domain.com
+    - https://www.your-frontend-domain.com

@@ -3,6 +3,7 @@ package com.micuota.config;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.Claims;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -10,8 +11,12 @@ import java.util.function.Function;
 
 @Component
 public class JwtUtil {
-    private final String secret = "ChangeThisSecretKeyForJWTSigning";
-    private final long expirationMs = 86400000; // 1 day
+    
+    @Value("${jwt.secret:ChangeThisSecretKeyForJWTSigning}")
+    private String secret;
+    
+    @Value("${jwt.expiration:86400000}")
+    private long expirationMs;
 
     public String generateToken(String username, String role) {
         return Jwts.builder()
