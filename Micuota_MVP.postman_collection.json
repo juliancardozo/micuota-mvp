@@ -1,0 +1,600 @@
+{
+	"info": {
+		"_postman_id": "micuota-mvp-collection",
+		"name": "Micuota MVP API",
+		"description": "Colección completa de endpoints para la plataforma de suscripciones Micuota MVP",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Verifica el estado de la API"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register - Profesor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    console.log('Usuario registrado:', response.email);",
+									"    console.log('Role:', response.role);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Profesor Juan Pérez\",\n    \"email\": \"profesor@example.com\",\n    \"password\": \"password123\",\n    \"role\": \"PROFESOR\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Registra un nuevo usuario profesor en el sistema"
+					},
+					"response": []
+				},
+				{
+					"name": "Register - Alumno",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    console.log('Usuario registrado:', response.email);",
+									"    console.log('Role:', response.role);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Alumno María García\",\n    \"email\": \"alumno@example.com\",\n    \"password\": \"password123\",\n    \"role\": \"ALUMNO\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Registra un nuevo usuario alumno en el sistema"
+					},
+					"response": []
+				},
+				{
+					"name": "Login - Profesor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('jwt_token', response.token);",
+									"    console.log('Token guardado en variable jwt_token');",
+									"} else {",
+									"    console.log('Error en login:', pm.response.text());",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"profesor@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Inicia sesión y obtiene el token JWT. El token se guarda automáticamente."
+					},
+					"response": []
+				},
+				{
+					"name": "Login - Alumno",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('jwt_token', response.token);",
+									"    console.log('Token guardado en variable jwt_token');",
+									"} else {",
+									"    console.log('Error en login:', pm.response.text());",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"alumno@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Inicia sesión como alumno y obtiene el token JWT"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Plans",
+			"item": [
+				{
+					"name": "Get All Plans",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/plans",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plans"
+							]
+						},
+						"description": "Lista todos los planes disponibles. No requiere autenticación."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Plan by ID",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/plans/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plans",
+								"1"
+							]
+						},
+						"description": "Obtiene un plan específico por su ID. Cambia el 1 por el ID del plan que quieras consultar."
+					},
+					"response": []
+				},
+				{
+					"name": "01 - Create Plan Starter (Mensual)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Starter - Plan Mensual\",\n    \"price\": \"29.99\",\n    \"frequency\": \"MONTHLY\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/plans",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plans"
+							]
+						},
+						"description": "Plan Starter: Ideal para emprendedores. Incluye características básicas, hasta 100 usuarios, soporte por email y almacenamiento de 10GB."
+					},
+					"response": []
+				},
+				{
+					"name": "02 - Create Plan Pro (Mensual)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Pro - Plan Mensual\",\n    \"price\": \"99.99\",\n    \"frequency\": \"MONTHLY\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/plans",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plans"
+							]
+						},
+						"description": "Plan Pro: Perfecto para equipos en crecimiento. Incluye todas las características del Starter, hasta 1,000 usuarios, soporte prioritario, almacenamiento de 100GB, y analytics avanzados."
+					},
+					"response": []
+				},
+				{
+					"name": "03 - Create Plan Enterprise (Mensual)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Enterprise - Plan Mensual\",\n    \"price\": \"249.99\",\n    \"frequency\": \"MONTHLY\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/plans",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plans"
+							]
+						},
+						"description": "Plan Enterprise: Para grandes organizaciones. Incluye todo lo del Pro, usuarios ilimitados, soporte 24/7 dedicado, almacenamiento ilimitado, API personalizada, SLAs garantizados y account manager dedicado."
+					},
+					"response": []
+				},
+				{
+					"name": "04 - Create Plan Starter (Anual)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Starter - Plan Anual\",\n    \"price\": \"299.99\",\n    \"frequency\": \"YEARLY\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/plans",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plans"
+							]
+						},
+						"description": "Plan Starter Anual: Ahorra 2 meses al pagar anualmente. Características del Plan Starter con facturación anual."
+					},
+					"response": []
+				},
+				{
+					"name": "05 - Create Plan Pro (Anual)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Pro - Plan Anual\",\n    \"price\": \"999.99\",\n    \"frequency\": \"YEARLY\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/plans",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plans"
+							]
+						},
+						"description": "Plan Pro Anual: Ahorra 2 meses al pagar anualmente. Características del Plan Pro con facturación anual."
+					},
+					"response": []
+				},
+				{
+					"name": "06 - Create Plan Enterprise (Anual)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Enterprise - Plan Anual\",\n    \"price\": \"2499.99\",\n    \"frequency\": \"YEARLY\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/plans",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"plans"
+							]
+						},
+						"description": "Plan Enterprise Anual: Ahorra 2 meses al pagar anualmente. Características del Plan Enterprise con facturación anual."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Subscriptions",
+			"item": [
+				{
+					"name": "Create Subscription",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"planId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/subscriptions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"subscriptions"
+							]
+						},
+						"description": "Crea una nueva suscripción a un plan. Requiere autenticación de alumno. Cambia el planId por el ID del plan deseado."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Payments",
+			"item": [
+				{
+					"name": "Get Payments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/payments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments"
+							]
+						},
+						"description": "Obtiene la lista de pagos del usuario autenticado (profesor). Muestra los pagos de sus planes."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Webhooks",
+			"item": [
+				{
+					"name": "MercadoPago Webhook - Payment",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\": \"payment\",\n    \"data\": {\n        \"id\": \"123456789\",\n        \"subscription_id\": \"sub_123456\",\n        \"amount\": 99.99,\n        \"status\": \"approved\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/webhooks/mercadopago",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"webhooks",
+								"mercadopago"
+							]
+						},
+						"description": "Simula el webhook de MercadoPago para notificación de pagos. No requiere autenticación. Status puede ser: approved, rejected, pending, cancelled."
+					},
+					"response": []
+				},
+				{
+					"name": "MercadoPago Webhook - Payment Rejected",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\": \"payment\",\n    \"data\": {\n        \"id\": \"123456790\",\n        \"subscription_id\": \"sub_123456\",\n        \"amount\": 99.99,\n        \"status\": \"rejected\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/webhooks/mercadopago",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"webhooks",
+								"mercadopago"
+							]
+						},
+						"description": "Simula un pago rechazado de MercadoPago"
+					},
+					"response": []
+				},
+				{
+					"name": "MercadoPago Webhook - Payment Pending",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\": \"payment\",\n    \"data\": {\n        \"id\": \"123456791\",\n        \"subscription_id\": \"sub_123456\",\n        \"amount\": 99.99,\n        \"status\": \"pending\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/webhooks/mercadopago",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"webhooks",
+								"mercadopago"
+							]
+						},
+						"description": "Simula un pago pendiente de MercadoPago"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
+
