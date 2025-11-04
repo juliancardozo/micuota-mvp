@@ -1,153 +1,170 @@
 <!doctype html>
 <html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Micuota - Frontend (Fastify)</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css">
-  <style>
-    body { font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; padding: 24px; background: #f5f7fb }
-    .container { max-width: 980px; margin: 0 auto }
-    header { display:flex; align-items:center; justify-content:space-between; gap:12px }
-    header h1 { margin: 0; font-size: 1.4rem }
-    .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px }
-    @media (max-width: 800px) { .grid { grid-template-columns: 1fr } }
-    .card { background: #ffffff; border-radius: 8px; padding: 18px; box-shadow: 0 6px 18px rgba(20,30,60,0.06) }
-    label { font-weight: 600; font-size: 0.9rem }
-    .muted { color: #6b7280 }
-    pre.result { background: #0f172a; color: #f8fafc; padding: 12px; border-radius:6px; overflow:auto; max-height: 180px }
-    .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center }
-    .success { color: #065f46 }
-    .error { color: #991b1b }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <header>
-      <div>
-        <h1>Micuota — Demo</h1>
-        <div class="muted">Prueba rápida: registro, login y creación de planes (mock MercadoPago)</div>
-      </div>
-      <div id="status" class="muted">Cargando configuración...</div>
-    </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Micuota — Cobros para profesores | Gestiona clases, suscripciones y pagos</title>
+    <meta name="description" content="Micuota ayuda a profesores y academias a cobrar por clases y gestionar suscripciones sin complicaciones. Publica planes, acepta pagos y gestiona alumnos en minutos." />
+    <meta name="author" content="Micuota" />
+    <meta property="og:title" content="Micuota — Cobros para profesores" />
+    <meta property="og:description" content="Publica planes, cobra por sesiones y gestiona suscripciones con una herramienta simple y segura." />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1200&auto=format&fit=crop" />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#2563eb" />
+    <!doctype html>
+    <html lang="es">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Micuota — Organiza cobros por clases y suscripciones</title>
+        <meta name="description" content="Micuota te ayuda a cobrar por clases, dividir pagos y gestionar suscripciones de forma simple. Ideal para profesores y pequeñas academias." />
+        <meta property="og:title" content="Micuota — Cobros para profesores" />
+        <meta property="og:description" content="Publica planes, gestiona alumnos y acepta pagos. Interfaz simple y lista para demo." />
+        <meta property="og:image" content="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1200&auto=format&fit=crop" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css">
+        <style>
+          :root{--accent:#2f855a;--muted:#6b7280;--bg:#f7fafc}
+          *{box-sizing:border-box}
+          body{margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;background:var(--bg);color:#0f172a}
+          .container{max-width:1200px;margin:0 auto;padding:20px}
+          header{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+          .brand{font-weight:800;font-size:1.1rem}
+          nav .links{display:flex;gap:12px;align-items:center}
+          .cta{background:var(--accent);color:#fff;padding:10px 14px;border-radius:8px;border:0}
+          .ghost{background:transparent;border:1px solid rgba(0,0,0,0.06);padding:8px 12px;border-radius:8px}
 
-    <main class="grid">
-      <section class="card">
-        <h3>Onboarding rápido</h3>
-        <div class="muted">Sigue los flujos automáticos para crear una cuenta y (si eres profesor) crear un plan.</div>
-        <div style="margin-top:12px" class="row">
-          <button id="btn-onboard-prof" class="primary">Onboard Profesor</button>
-          <button id="btn-onboard-stud">Onboard Alumno</button>
-        </div>
-        <div style="margin-top:12px">
-          <label for="onb-name">Nombre</label>
-          <input id="onb-name" placeholder="Nombre completo" />
-        </div>
-        <div>
-          <label for="onb-email">Email</label>
-          <input id="onb-email" placeholder="email@ejemplo.com" />
-        </div>
-        <div>
-          <label for="onb-password">Password</label>
-          <input id="onb-password" placeholder="Password" type="password" />
-        </div>
-        <div id="onboard-log" style="margin-top:12px">
-          <pre id="onboard-result" class="result" aria-live="polite"></pre>
-        </div>
-      </section>
+          .hero{display:flex;gap:32px;align-items:center;padding:48px 0}
+          .hero-left{flex:1}
+          .hero-right{flex:1}
+          .hero h1{font-size:2.2rem;margin:0 0 12px}
+          .lead{color:var(--muted);margin:0 0 18px}
+          .screenshot{width:100%;border-radius:12px;box-shadow:0 20px 50px rgba(2,6,23,0.06)}
 
-      <section class="card">
-        <h3>Registro (Onboarding)</h3>
-        <div>
-          <label for="reg-name">Nombre</label>
-          <input id="reg-name" placeholder="Nombre completo" />
-        </div>
-        <div>
-          <label for="reg-email">Email</label>
-          <input id="reg-email" placeholder="email@ejemplo.com" />
-        </div>
-        <div>
-          <label for="reg-password">Password</label>
-          <input id="reg-password" placeholder="Password" type="password" />
-        </div>
-        <div>
-          <label for="reg-role">Rol</label>
-          <select id="reg-role">
-            <option value="PROFESOR">PROFESOR</option>
-            <option value="ALUMNO">ALUMNO</option>
-          </select>
-        </div>
-        <div class="row">
-          <button id="btn-register" class="primary">Registrar</button>
-          <button id="btn-clear-register">Limpiar</button>
-        </div>
-        <pre id="register-result" class="result" aria-live="polite"></pre>
-      </section>
+          .features{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:28px}
+          .feature{background:#fff;padding:18px;border-radius:10px;border:1px solid #eef2f6}
+          .feature h4{margin:0 0 8px}
 
-      <section class="card">
-        <h3>Login</h3>
-        <div>
-          <label for="login-email">Email</label>
-          <input id="login-email" placeholder="email@ejemplo.com" />
-        </div>
-        <div>
-          <label for="login-password">Password</label>
-          <input id="login-password" placeholder="Password" type="password" />
-        </div>
-        <div class="row">
-          <button id="btn-login" class="primary">Login</button>
-          <button id="btn-logout">Logout</button>
-        </div>
-        <pre id="login-result" class="result" aria-live="polite"></pre>
-      </section>
+          .how{display:flex;gap:12px;margin-top:28px;padding:18px;background:#fff;border-radius:10px;border:1px solid #eef2f6}
+          .how div{flex:1}
 
-      <section class="card">
-        <h3>Crear Plan (protegido)</h3>
-        <div>
-          <label for="plan-title">Título</label>
-          <input id="plan-title" placeholder="Starter" />
-        </div>
-        <div>
-          <label for="plan-price">Precio</label>
-          <input id="plan-price" placeholder="9.99" />
-        </div>
-        <div>
-          <label for="plan-frequency">Frecuencia</label>
-          <input id="plan-frequency" placeholder="monthly" value="monthly" />
-        </div>
-        <div class="row">
-          <button id="btn-create-plan" class="primary">Crear Plan</button>
-          <button id="btn-clear-plan">Limpiar</button>
-        </div>
-        <pre id="plan-result" class="result" aria-live="polite"></pre>
-      </section>
+          .testimonials{display:flex;gap:12px;margin-top:24px}
+          .testimonial{background:#fff;padding:14px;border-radius:10px;flex:1;border:1px solid #eef2f6}
 
-      <section class="card">
-        <h3>Sesión</h3>
-        <div id="session-info" class="muted">No autenticado</div>
-        <div style="margin-top:12px">
-          <button id="btn-show-token">Mostrar token</button>
-          <button id="btn-copy-token">Copiar token</button>
-          <button id="btn-student-pay" class="primary">Pagar sesión (Alumno demo)</button>
+          footer{padding:24px 0;color:var(--muted);text-align:center;margin-top:30px}
+
+          @media(max-width:900px){
+            .hero{flex-direction:column}
+            .features{grid-template-columns:1fr}
+            .testimonials{flex-direction:column}
+            .how{flex-direction:column}
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <header>
+            <div class="brand">Micuota</div>
+            <nav>
+              <div class="links">
+                <a href="#features">Características</a>
+                <a href="#how">Cómo funciona</a>
+                <a href="#testimonials">Opiniones</a>
+                <button class="cta" onclick="location.href='/app.html'">Probar demo</button>
+              </div>
+            </nav>
+          </header>
+
+          <section class="hero">
+            <div class="hero-left">
+              <h1>Organiza cobros, consulta pagos y gestiona suscripciones sin complicaciones</h1>
+              <p class="lead">Micuota centraliza clases, planes y pagos en un panel sencillo pensado para profesores y pequeñas academias. Comparte un enlace y cobra en minutos.</p>
+              <div style="display:flex;gap:12px">
+                <button class="cta" onclick="location.href='/app.html'">Probar demo</button>
+                <a class="ghost" href="#how">Ver cómo funciona</a>
+              </div>
+            </div>
+            <div class="hero-right">
+              <img class="screenshot" src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1200&auto=format&fit=crop" alt="Captura de Micuota"/>
+            </div>
+          </section>
+
+          <section id="features" class="features">
+            <div class="feature">
+              <h4>Planes y suscripciones</h4>
+              <p class="lead">Configura planes por sesión o recurrentes y automatiza cobros.</p>
+            </div>
+            <div class="feature">
+              <h4>Control de alumnos</h4>
+              <p class="lead">Lista de alumnos, historial de pagos y estado de suscripciones.</p>
+            </div>
+            <div class="feature">
+              <h4>Simple de usar</h4>
+              <p class="lead">Interfaz minimalista que facilita la autogestión, sin necesidad de conocimientos técnicos.</p>
+            </div>
+          </section>
+
+          <section id="how" class="how">
+            <div>
+              <h3>Cómo funciona</h3>
+              <ol>
+                <li>Regístrate y crea tu primer plan.</li>
+                <li>Comparte el enlace de pago con tus alumnos.</li>
+                <li>El alumno paga y la plataforma registra el pago automáticamente.</li>
+              </ol>
+            </div>
+            <div>
+              <h3>Perfecto para</h3>
+              <ul>
+                <li>Profesores particulares</li>
+                <li>Academias pequeñas</li>
+                <li>Coaches y talleres</li>
+              </ul>
+            </div>
+          </section>
+
+          <section id="testimonials" class="testimonials">
+            <div class="testimonial">
+              <strong>"Empecé a cobrar mis clases en minutos"</strong>
+              <p class="small">— Laura, profesora de yoga</p>
+            </div>
+            <div class="testimonial">
+              <strong>"Ideal para gestionar alumnos y pagos recurrentes"</strong>
+              <p class="small">— Academia Talleres & Co.</p>
+            </div>
+          </section>
+
+          <section style="margin-top:28px">
+            <h3 style="text-align:center">Empieza ahora</h3>
+            <p style="text-align:center;color:var(--muted)">Prueba la demo para ver el flujo completo: registro, creación de plan, suscripción y cobro simulado.</p>
+            <div style="text-align:center;margin-top:12px"><button class="cta" onclick="location.href='/app.html'">Abrir demo</button></div>
+          </section>
+
+          <footer>
+            <div style="max-width:900px;margin:18px auto;color:var(--muted);text-align:center">© Micuota — Demo. No usar en producción. <a href="/app.html">Probar demo</a></div>
+          </footer>
         </div>
-        <pre id="token-display" class="result" aria-live="polite"></pre>
-      </section>
-    </main>
+      </body>
+    </html>
+          <details>
+            <summary>¿Puedo usar MercadoPago real?</summary>
+            <p>Sí — cuando configures las claves en variables de entorno la integración será real. El demo utiliza un mock para no requerir claves.</p>
+          </details>
+          <details>
+            <summary>¿Dónde guardan los datos?</summary>
+            <p>En la demo se usa la base de datos local de Postgres. En producción recomendamos un servicio de BD gestionado y backups.</p>
+          </details>
+        </section>
 
-    <footer style="margin-top:18px" class="muted">Usa esta interfaz sólo para pruebas. No guardar secretos aquí.</footer>
-  </div>
+      </main>
 
-  <!-- Modal / Alert -->
-  <div id="micuota-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); align-items:center; justify-content:center; z-index:9999">
-    <div style="background:#fff; padding:18px; border-radius:8px; max-width:520px; width:90%; box-shadow:0 10px 30px rgba(0,0,0,0.2);">
-      <h3 id="micuota-modal-title">Mensaje</h3>
-      <div id="micuota-modal-body" style="margin-top:8px; white-space:pre-wrap; max-height:320px; overflow:auto;"></div>
-      <div style="margin-top:12px; text-align:right">
-        <button id="micuota-modal-close" class="secondary">Cerrar</button>
-      </div>
+      <footer>
+        <div style="padding:12px;text-align:center;color:var(--muted)">© Micuota — Demo • <a href="/app.html">Probar demo</a></div>
+      </footer>
     </div>
-  </div>
 
-  <script src="app.js"></script>
-</body>
+    <script>
+      // Simple analytics placeholder (no external calls) — replace with real analytics snippet as needed
+      console.log('Micuota landing loaded');
+    </script>
+  </body>
 </html>

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Micuota — Demo App</title>
+    <meta name="description" content="Interfaz demo para Micuota: registra usuarios, crea planes, suscribe alumnos y simula cobros (WireMock)." />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css">
+    <style>
+      :root{--accent:#2563eb;--muted:#6b7280}
+      body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;background:#f6f8fb;margin:0;padding:24px}
+      .wrap{max-width:1100px;margin:0 auto}
+      header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+      h1{margin:0;font-size:1.4rem}
+      .muted{color:var(--muted)}
+      .grid{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-top:18px}
+      @media(max-width:900px){.grid{grid-template-columns:1fr}}
+      .card{background:#fff;padding:18px;border-radius:10px;box-shadow:0 6px 18px rgba(20,30,60,0.04)}
+      label{font-weight:600}
+      input,select{width:100%;padding:8px;border-radius:6px;border:1px solid #e6eefc}
+      .btn{padding:10px 14px;border-radius:8px;border:0;cursor:pointer}
+      .btn-primary{background:var(--accent);color:#fff}
+      .btn-ghost{background:transparent;border:1px solid #e6eefc;color:var(--accent)}
+      pre.result{background:#0b1220;color:#e6eefc;padding:12px;border-radius:6px;max-height:220px;overflow:auto}
+      .small{font-size:0.9rem;color:var(--muted)}
+      .actions{display:flex;gap:8px;flex-wrap:wrap}
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div>
+          <h1>Micuota — Demo interactiva</h1>
+          <div class="small">Flujo guiado: registro → login → crear plan → suscribir → cobrar</div>
+        </div>
+        <div id="status" class="muted">Cargando configuración...</div>
+      </header>
+
+      <main class="grid">
+        <section class="card">
+          <h3>Onboarding rápido</h3>
+          <p class="small">Crea una cuenta de profesor o alumno y ejecuta el flujo automatizado.</p>
+          <div style="display:flex;gap:10px;margin-top:10px">
+            <input id="onb-name" placeholder="Nombre (opcional)" />
+            <input id="onb-email" placeholder="email@ejemplo.com (opcional)" />
+            <input id="onb-password" placeholder="Password (opcional)" type="password" />
+          </div>
+          <div style="margin-top:12px" class="actions">
+            <button id="btn-onboard-prof" class="btn btn-primary">Onboard Profesor</button>
+            <button id="btn-onboard-stud" class="btn btn-ghost">Onboard Alumno</button>
+            <button id="btn-student-pay" class="btn btn-primary">Flujo alumno (Pagar)</button>
+          </div>
+          <div style="margin-top:12px"><pre id="onboard-result" class="result" aria-live="polite"></pre></div>
+        </section>
+
+        <aside class="card">
+          <h4>Estado de sesión</h4>
+          <div id="session-info" class="small">No autenticado</div>
+          <div style="margin-top:8px" class="actions">
+            <button id="btn-show-token" class="btn btn-ghost">Mostrar token</button>
+            <button id="btn-copy-token" class="btn btn-ghost">Copiar token</button>
+            <button id="btn-logout" class="btn">Logout</button>
+          </div>
+          <div style="margin-top:8px"><pre id="token-display" class="result" aria-live="polite"></pre></div>
+        </aside>
+
+        <section class="card" style="grid-column:1 / -1">
+          <h3>Registro</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div>
+              <label for="reg-name">Nombre</label>
+              <input id="reg-name" placeholder="Nombre completo" />
+            </div>
+            <div>
+              <label for="reg-role">Rol</label>
+              <select id="reg-role"><option value="PROFESOR">Profesor</option><option value="ALUMNO">Alumno</option></select>
+            </div>
+            <div>
+              <label for="reg-email">Email</label>
+              <input id="reg-email" placeholder="email@ejemplo.com" />
+            </div>
+            <div>
+              <label for="reg-password">Password</label>
+              <input id="reg-password" placeholder="Password" type="password" />
+            </div>
+          </div>
+          <div style="margin-top:10px" class="actions">
+            <button id="btn-register" class="btn btn-primary">Registrar</button>
+            <button id="btn-clear-register" class="btn btn-ghost">Limpiar</button>
+          </div>
+          <div style="margin-top:10px"><pre id="register-result" class="result" aria-live="polite"></pre></div>
+        </section>
+
+        <section class="card">
+          <h3>Login</h3>
+          <div>
+            <label for="login-email">Email</label>
+            <input id="login-email" placeholder="email@ejemplo.com" />
+          </div>
+          <div>
+            <label for="login-password">Password</label>
+            <input id="login-password" placeholder="Password" type="password" />
+          </div>
+          <div style="margin-top:8px" class="actions">
+            <button id="btn-login" class="btn btn-primary">Login</button>
+          </div>
+          <div style="margin-top:8px"><pre id="login-result" class="result" aria-live="polite"></pre></div>
+        </section>
+
+        <section class="card">
+          <h3>Crear plan (profesor)</h3>
+          <div>
+            <label for="plan-title">Título</label>
+            <input id="plan-title" placeholder="Nombre del plan" />
+          </div>
+          <div style="display:flex;gap:10px;margin-top:8px">
+            <div style="flex:1">
+              <label for="plan-price">Precio</label>
+              <input id="plan-price" placeholder="9.99" />
+            </div>
+            <div style="width:160px">
+              <label for="plan-frequency">Frecuencia</label>
+              <input id="plan-frequency" placeholder="monthly" value="monthly" />
+            </div>
+          </div>
+          <div style="margin-top:10px" class="actions">
+            <button id="btn-create-plan" class="btn btn-primary">Crear Plan</button>
+            <button id="btn-clear-plan" class="btn btn-ghost">Limpiar</button>
+          </div>
+          <div style="margin-top:8px"><pre id="plan-result" class="result" aria-live="polite"></pre></div>
+        </section>
+
+        <section class="card">
+          <h3>Estado y pagos</h3>
+          <div class="small">Usa 'Flujo alumno' para simular seed → login → subscribe → charge</div>
+          <div style="margin-top:8px"><pre id="payments-log" class="result" aria-live="polite"></pre></div>
+        </section>
+
+      </main>
+
+      <footer style="margin-top:18px" class="muted">Interfaz demo — no use en producción. Mantén secretos fuera del frontend.</footer>
+    </div>
+
+    <!-- Modal -->
+    <div id="micuota-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); align-items:center; justify-content:center; z-index:9999">
+      <div style="background:#fff; padding:18px; border-radius:8px; max-width:520px; width:90%; box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+        <h3 id="micuota-modal-title">Mensaje</h3>
+        <div id="micuota-modal-body" style="margin-top:8px; white-space:pre-wrap; max-height:320px; overflow:auto;"></div>
+        <div style="margin-top:12px; text-align:right">
+          <button id="micuota-modal-close" class="btn btn-ghost">Cerrar</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

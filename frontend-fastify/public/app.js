@@ -1,10 +1,14 @@
 (async function(){
+  // Grab elements (may be missing in some variants of the page). Use helpers below to safely attach handlers.
   const statusEl = document.getElementById('status')
   const registerResult = document.getElementById('register-result')
   const loginResult = document.getElementById('login-result')
   const planResult = document.getElementById('plan-result')
   const sessionInfo = document.getElementById('session-info')
   const tokenDisplay = document.getElementById('token-display')
+
+  function el(id){ return document.getElementById(id) }
+  function on(id, evt, fn){ const e = el(id); if (e) e.addEventListener(evt, fn); else console.warn(`Element #${id} not found, skipping handler`); }
 
   // Load configuration (static file or /config)
   let BACKEND = 'http://localhost:8080'
@@ -16,19 +20,19 @@
     }
   } catch(e){}
 
-  statusEl.textContent = 'Backend: ' + BACKEND
+  if (statusEl) statusEl.textContent = 'Backend: ' + BACKEND
 
-  function show(el, obj){ el.textContent = JSON.stringify(obj, null, 2) }
+  function show(el, obj){ if (!el) { console.warn('show() called for missing element', el, obj); return } el.textContent = JSON.stringify(obj, null, 2) }
 
   function setSession(token){
     if (token) {
       localStorage.setItem('micuota_token', token)
-      sessionInfo.textContent = 'Autenticado'
-      sessionInfo.classList.add('success')
+      if (sessionInfo) { sessionInfo.textContent = 'Autenticado'; sessionInfo.classList.add('success') }
+      else console.warn('setSession: session-info element not found')
     } else {
       localStorage.removeItem('micuota_token')
-      sessionInfo.textContent = 'No autenticado'
-      sessionInfo.classList.remove('success')
+      if (sessionInfo) { sessionInfo.textContent = 'No autenticado'; sessionInfo.classList.remove('success') }
+      else console.warn('setSession: session-info element not found')
     }
   }
 
@@ -36,14 +40,14 @@
   const existing = localStorage.getItem('micuota_token')
   if (existing) setSession(existing)
 
-  document.getElementById('btn-register').addEventListener('click', async ()=>{
+  on('btn-register','click', async ()=>{
     const payload = {
-      name: document.getElementById('reg-name').value,
-      email: document.getElementById('reg-email').value,
-      password: document.getElementById('reg-password').value,
-      role: document.getElementById('reg-role').value
+      name: (el('reg-name') && el('reg-name').value) || '',
+      email: (el('reg-email') && el('reg-email').value) || '',
+      password: (el('reg-password') && el('reg-password').value) || '',
+      role: (el('reg-role') && el('reg-role').value) || 'ALUMNO'
     }
-    registerResult.textContent = 'Procesando...'
+    if (registerResult) registerResult.textContent = 'Procesando...'
     try{
       const res = await fetch(BACKEND + '/auth/register', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) })
       const json = await res.json()
@@ -51,15 +55,15 @@
     }catch(err){ show(registerResult, { error: err.message }) }
   })
 
-  document.getElementById('btn-clear-register').addEventListener('click', ()=>{
-    document.getElementById('reg-name').value=''
-    document.getElementById('reg-email').value=''
-    document.getElementById('reg-password').value=''
+  on('btn-clear-register','click', ()=>{
+    if (el('reg-name')) el('reg-name').value=''
+    if (el('reg-email')) el('reg-email').value=''
+    if (el('reg-password')) el('reg-password').value=''
   })
 
-  document.getElementById('btn-login').addEventListener('click', async ()=>{
-    const payload = { email: document.getElementById('login-email').value, password: document.getElementById('login-password').value }
-    loginResult.textContent = 'Procesando...'
+  on('btn-login','click', async ()=>{
+    const payload = { email: (el('login-email') && el('login-email').value) || '', password: (el('login-password') && el('login-password').value) || '' }
+    if (loginResult) loginResult.textContent = 'Procesando...'
     try{
       const res = await fetch(BACKEND + '/auth/login', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) })
       const json = await res.json()
@@ -67,29 +71,27 @@
       else show(loginResult, json)
     }catch(err){ show(loginResult, { error: err.message }) }
   })
+  on('btn-logout','click', ()=>{ setSession(null); if (tokenDisplay) tokenDisplay.textContent = '' })
 
-  document.getElementById('btn-logout').addEventListener('click', ()=>{ setSession(null); tokenDisplay.textContent = '' })
-
-  document.getElementById('btn-create-plan').addEventListener('click', async ()=>{
+  on('btn-create-plan','click', async ()=>{
     const token = localStorage.getItem('micuota_token')
     if (!token) { planResult.textContent = 'No autenticado - haz login primero'; return }
-    const payload = { title: document.getElementById('plan-title').value, price: document.getElementById('plan-price').value, frequency: document.getElementById('plan-frequency').value }
-    planResult.textContent = 'Procesando...'
+    const payload = { title: (el('plan-title') && el('plan-title').value) || '', price: (el('plan-price') && el('plan-price').value) || '', frequency: (el('plan-frequency') && el('plan-frequency').value) || 'monthly' }
+    if (planResult) planResult.textContent = 'Procesando...'
     try{
       const res = await fetch(BACKEND + '/plans', { method: 'POST', headers: {'Content-Type':'application/json','Authorization':'Bearer ' + token}, body: JSON.stringify(payload) })
       const json = await res.json()
       show(planResult, json)
     }catch(err){ show(planResult, { error: err.message }) }
   })
+  on('btn-clear-plan','click', ()=>{ if (el('plan-title')) el('plan-title').value=''; if (el('plan-price')) el('plan-price').value=''; if (el('plan-frequency')) el('plan-frequency').value='monthly' })
 
-  document.getElementById('btn-clear-plan').addEventListener('click', ()=>{ document.getElementById('plan-title').value=''; document.getElementById('plan-price').value=''; document.getElementById('plan-frequency').value='monthly' })
-
-  document.getElementById('btn-show-token').addEventListener('click', ()=>{ tokenDisplay.textContent = localStorage.getItem('micuota_token') || 'No token' })
-  document.getElementById('btn-copy-token').addEventListener('click', ()=>{ const t = localStorage.getItem('micuota_token'); if (t) navigator.clipboard.writeText(t).then(()=> alert('Token copiado')) })
+  on('btn-show-token','click', ()=>{ if (tokenDisplay) tokenDisplay.textContent = localStorage.getItem('micuota_token') || 'No token' })
+  on('btn-copy-token','click', ()=>{ const t = localStorage.getItem('micuota_token'); if (t) navigator.clipboard.writeText(t).then(()=> alert('Token copiado')) })
 
   // Student quick-pay flow: login as demo student (or use existing session) -> subscribe to first plan -> charge
-  document.getElementById('btn-student-pay').addEventListener('click', async ()=>{
-    const log = document.getElementById('onboard-result') || document.getElementById('register-result')
+  on('btn-student-pay','click', async ()=>{
+    const log = el('onboard-result') || el('register-result')
     log.textContent = ''
     try{
       // Ensure there is a demo student; call /demo/seed which creates alumno@local.test/alumno
