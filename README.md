@@ -58,6 +58,17 @@ docker run -d \
   - Usuario: postgres
   - Password: root
 
+## Frontend (landing + demo)
+
+- **Landing**: http://localhost:3000  (archivo: `frontend-fastify/public/index.html`)
+- **Demo UI**: http://localhost:3000/app.html  (archivo: `frontend-fastify/public/app.html`)
+
+El frontend se sirve por el servicio `frontend` en `docker-compose.yml` (nginx). Si modificas archivos estáticos, reconstruye/recarga el servicio con:
+
+```powershell
+docker-compose up --build -d frontend
+```
+
 ## Endpoints Principales
 
 ### Públicos (No requieren autenticación)
@@ -67,6 +78,10 @@ docker run -d \
 - `POST /auth/register` - Registro de usuario
 - `POST /auth/login` - Login y obtención de token JWT
 - `POST /webhooks/mercadopago` - Webhook de Mercado Pago
+
+### Endpoints adicionales útiles para demo / desarrollo
+- `POST /demo/seed` - Crea usuarios demo (profesor/alumno), y un plan de ejemplo. *Solo para desarrollo.*
+
 
 ### Protegidos (Requieren token JWT en header)
 - `POST /plans` - Crear nuevo plan (requiere autenticación)
@@ -105,6 +120,72 @@ curl -X POST http://localhost:8080/plans \
 - JWT_SECRET
 - POSTGRES_PASSWORD
 - Usar variables de entorno seguras
+
+## Mocks y pruebas
+
+Este repo incluye WireMock para mockear MercadoPago y facilitar demos sin claves reales.
+
+- Servicio: `wiremock` en `docker-compose.yml` (monta `mocks/wiremock`)
+- Endpoints mockeados: revisa `mocks/wiremock/mappings/*.json`
+
+Para ejecutar los flujos automáticos (E2E) hay scripts PowerShell en `scripts/`:
+
+- `scripts/run-e2e.ps1` — Ejecuta un flujo de prueba: health → register → login → crear plan → suscribirse → webhook.
+- `scripts/demo-student-pay.ps1` — Flow rápido que usa `/demo/seed`, login de alumno y `payments/charge`.
+
+Ejecuta (PowerShell):
+
+```powershell
+.\scripts\run-e2e.ps1 -BaseUrl "http://localhost:8080" -TimeoutSec 120
+```
+
+Si necesitas exponer la demo públicamente (ngrok), recuerda proteger `/demo/seed` (ver sección Hardening).
+
+## CORS
+
+El backend está configurado para permitir llamadas desde `http://localhost:3000` y patrones de ngrok (útil para demos). La configuración CORS está en `src/main/java/com/micuota/config/SecurityConfig.java`.
+
+Si tienes problemas con preflight (OPTIONS), revisa la respuesta del servidor y asegúrate de que el header `Access-Control-Allow-Origin` incluya el origen de la página que hace la petición.
+
+## Hardening / Producción
+
+- Deshabilitar `POST /demo/seed` en entornos públicos. Se recomienda usar la variable de entorno `ALLOW_DEMO_SEED=false` por defecto y solo activarla en local.
+- No exponer claves o secretos en imágenes públicas. Usa secretos del orquestador o variables de entorno (Docker secrets, Kubernetes secrets).
+- Habilitar TLS y configurar dominios para el frontend y API.
+
+## Quick start (resumen)
+
+1. Levantar servicios:
+
+```powershell
+docker-compose up --build -d
+```
+
+2. Abrir landing:
+
+http://localhost:3000
+
+3. Abrir demo (si quieres probar el flujo):
+
+http://localhost:3000/app.html
+
+4. Ejecutar script E2E (opcional):
+
+```powershell
+.\scripts\run-e2e.ps1 -BaseUrl "http://localhost:8080" -TimeoutSec 120
+```
+
+## Contribuir
+
+Si quieres mejorar el demo o la landing:
+
+1. Crea una rama a partir de `main`.
+2. Haz cambios en `frontend-fastify/public` y prueba reconstruyendo el servicio `frontend`.
+3. Asegúrate de que `mvn clean package` compile si tocas código Java.
+
+--
+
+Si quieres, puedo añadir una sección de captura de emails en la landing (form simple que hace POST a `/leads`) o implementar la protección `ALLOW_DEMO_SEED` en backend.
 
 ## Colección de Postman
 
