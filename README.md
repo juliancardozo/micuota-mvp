@@ -2,6 +2,8 @@
 
 Micro plataforma de suscripciones MVP con Spring Boot, PostgreSQL y Mercado Pago.
 
+Consulta la [arquitectura detallada y las integraciones](docs/ARCHITECTURE.md) para conocer cómo se diseñó el flujo público/privado, la automatización de pagos con Mercado Pago y la sincronización con Supabase.
+
 ## Requisitos
 
 - Docker 20.10+
