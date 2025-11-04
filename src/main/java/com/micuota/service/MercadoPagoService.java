@@ -6,6 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class MercadoPagoService {
@@ -27,16 +32,38 @@ public class MercadoPagoService {
     @Value("${mercadopago.sandbox:true}")
     private boolean sandbox;
 
+    @Value("${mercadopago.base-url:http://wiremock:8080}")
+    private String mercadopagoBaseUrl;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
     public String createPlan(String title, BigDecimal price, String frequency) {
         if (isConfiguredForRealAPI()) {
             // TODO: Implement call to MercadoPago API /preapproval_plan
             logger.info("Creating real MercadoPago plan: {} - ${} - {}", title, price, frequency);
             // return callRealMercadoPagoAPI(title, price, frequency);
         }
-        
-        // Mock implementation for development
+        // If there's an explicit base URL (WireMock / mock server), call it and return the id
+        try {
+            Map<String, Object> body = new HashMap<>();
+            body.put("title", title);
+            body.put("price", price.toString());
+            body.put("frequency", frequency);
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> resp = restTemplate.postForObject(mercadopagoBaseUrl + "/v1/plans", body, Map.class);
+            if (resp != null && resp.containsKey("id")) {
+                String id = String.valueOf(resp.get("id"));
+                logger.debug("MP plan created (via mock): {}", id);
+                return id;
+            }
+        } catch (RestClientException ex) {
+            logger.warn("Failed to call mock MercadoPago at {} - falling back to in-memory mock: {}", mercadopagoBaseUrl, ex.getMessage());
+        }
+
+        // Fallback mock implementation
         String mockPlanId = "fake-plan-id-" + System.currentTimeMillis();
-        logger.debug("Mock MercadoPago plan created: {}", mockPlanId);
+        logger.debug("Fallback mock MercadoPago plan created: {}", mockPlanId);
         return mockPlanId;
     }
 
@@ -46,10 +73,23 @@ public class MercadoPagoService {
             logger.info("Creating real MercadoPago subscription for plan: {}", mpPlanId);
             // return callRealMercadoPagoSubscriptionAPI(mpPlanId);
         }
-        
-        // Mock implementation for development
+        try {
+            Map<String, Object> body = new HashMap<>();
+            body.put("plan_id", mpPlanId);
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> resp = restTemplate.postForObject(mercadopagoBaseUrl + "/v1/subscriptions", body, Map.class);
+            if (resp != null && resp.containsKey("id")) {
+                String id = String.valueOf(resp.get("id"));
+                logger.debug("MP subscription created (via mock): {}", id);
+                return id;
+            }
+        } catch (RestClientException ex) {
+            logger.warn("Failed to call mock MercadoPago at {} - falling back to in-memory mock: {}", mercadopagoBaseUrl, ex.getMessage());
+        }
+
         String mockSubscriptionId = "fake-subscription-id-" + System.currentTimeMillis();
-        logger.debug("Mock MercadoPago subscription created: {}", mockSubscriptionId);
+        logger.debug("Fallback mock MercadoPago subscription created: {}", mockSubscriptionId);
         return mockSubscriptionId;
     }
     

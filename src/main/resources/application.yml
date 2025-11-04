@@ -24,3 +24,4 @@ mercadopago:
   client-secret: ${MERCADOPAGO_CLIENT_SECRET:}
   webhook-secret: ${MERCADOPAGO_WEBHOOK_SECRET:}
   sandbox: ${MERCADOPAGO_SANDBOX:true}
+  base-url: ${MERCADOPAGO_BASE_URL:http://wiremock:8080}

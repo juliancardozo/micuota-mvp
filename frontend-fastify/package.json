@@ -1,0 +1,13 @@
+{
+  "name": "micuota-frontend-fastify",
+  "version": "0.1.0",
+  "description": "Simple frontend served with Fastify for Micuota MVP (register/login/create plan)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "fastify": "^4.23.0",
+    "fastify-static": "^6.7.0"
+  }
+}

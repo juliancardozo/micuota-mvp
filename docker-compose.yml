@@ -31,11 +31,34 @@ services:
       SERVER_PORT: 8080
       JWT_SECRET: ChangeThisSecretKeyForJWTSigning
       JWT_EXPIRATION: 86400000
+      MERCADOPAGO_BASE_URL: http://wiremock:8080
     ports:
       - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - micuota-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend-fastify
+      dockerfile: Dockerfile
+    container_name: micuota-frontend
+    ports:
+      - "3000:80"
+    networks:
+      - micuota-network
+    restart: unless-stopped
+
+  wiremock:
+    image: wiremock/wiremock:2.35.0
+    container_name: micuota-wiremock
+    ports:
+      - "8081:8080" # host 8081 -> container 8080
+    volumes:
+      - ./mocks/wiremock:/home/wiremock
     networks:
       - micuota-network
     restart: unless-stopped

@@ -1,0 +1,10 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/webhooks/notifications"
+  },
+  "response": {
+    "status": 200,
+    "body": "received"
+  }
+}
