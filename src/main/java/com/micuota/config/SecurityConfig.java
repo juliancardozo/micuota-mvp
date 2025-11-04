@@ -39,6 +39,8 @@ public class SecurityConfig {
                 .requestMatchers("/health").permitAll()
                 .requestMatchers(HttpMethod.GET, "/plans/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/leads/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/leads/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/demo/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/webhooks/**").permitAll()
                 .anyRequest().authenticated()

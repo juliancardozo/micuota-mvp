@@ -82,6 +82,20 @@
                 <button class="cta" onclick="location.href='/app.html'">Probar demo</button>
                 <a class="ghost" href="#how">Ver cómo funciona</a>
               </div>
+
+              <!-- Lead capture CTA box -->
+              <div style="margin-top:16px; max-width:420px;">
+                <form id="lead-form" style="display:flex;flex-direction:column;gap:8px;background:#fff;padding:12px;border-radius:10px;border:1px solid #e6eef7">
+                  <label style="font-weight:600">Solicita una demo gratuita</label>
+                  <input id="lead-name" name="name" type="text" placeholder="Tu nombre" required />
+                  <input id="lead-email" name="email" type="email" placeholder="Correo electrónico" required />
+                  <textarea id="lead-message" name="message" placeholder="¿En qué te interesa Micuota? (opcional)" rows="3"></textarea>
+                  <div style="display:flex;gap:8px;align-items:center">
+                    <button id="lead-submit" class="cta" type="submit">Solicitar demo gratis</button>
+                    <span id="lead-status" style="color:var(--muted);font-size:0.95rem"></span>
+                  </div>
+                </form>
+              </div>
             </div>
             <div class="hero-right">
               <img class="screenshot" src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1200&auto=format&fit=crop" alt="Captura de Micuota"/>
@@ -165,6 +179,53 @@
     <script>
       // Simple analytics placeholder (no external calls) — replace with real analytics snippet as needed
       console.log('Micuota landing loaded');
+    </script>
+
+    <script>
+      (function(){
+        // Load backend URL from config.json (fallback to localhost)
+        const cfg = fetch('config.json').then(r=>r.json()).catch(()=>({backendUrl:'http://localhost:8080'}));
+
+        const form = document.getElementById('lead-form');
+        if(!form) return;
+        const statusEl = document.getElementById('lead-status');
+        const submitBtn = document.getElementById('lead-submit');
+
+        function setStatus(msg, ok){
+          statusEl.textContent = msg || '';
+          statusEl.style.color = ok ? 'green' : 'var(--muted)';
+        }
+
+        form.addEventListener('submit', async function(e){
+          e.preventDefault();
+          submitBtn.disabled = true;
+          setStatus('Enviando...', false);
+          const name = document.getElementById('lead-name').value.trim();
+          const email = document.getElementById('lead-email').value.trim();
+          const message = document.getElementById('lead-message').value.trim();
+          if(!name || !email){ setStatus('Nombre y correo son requeridos', false); submitBtn.disabled = false; return; }
+
+          const backend = await cfg;
+          const url = (backend.backendUrl || 'http://localhost:8080').replace(/\/+$/,'') + '/leads';
+          try{
+            const res = await fetch(url, {
+              method: 'POST',
+              headers: {'Content-Type':'application/json'},
+              body: JSON.stringify({name, email, message})
+            });
+            if(res.status === 201){
+              setStatus('¡Gracias! Te contactaremos pronto.', true);
+              form.reset();
+            } else {
+              const t = await res.text();
+              setStatus('Error: ' + res.status + ' ' + (t||''), false);
+            }
+          }catch(err){
+            console.error(err);
+            setStatus('Error en la conexión. Intenta más tarde.', false);
+          } finally { submitBtn.disabled = false; }
+        });
+      })();
     </script>
   </body>
 </html>
